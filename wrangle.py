@@ -11,7 +11,7 @@ This is how you get rid of the Unnamed: 0 column:
 """
 
 
-def get_zillow_data():
+def wrangle_zillow():
     """
     This function reads the telco_churn data from Codeup db into a df.
     """
@@ -32,6 +32,10 @@ def get_zillow_data():
         
         # Write that dataframe to disk for later. Called "caching" the data for later.
         df.to_csv(filename, index=False)
+
+        # Remove NAs. No significant change to data. Upper outliers were affected the most.
+        df = df.dropna()
         
         # Return the dataframe to the calling code
         return df
+
