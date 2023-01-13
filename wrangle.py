@@ -48,7 +48,7 @@ def wrangle_zillow():
         df = df.dropna()
         df.rename(columns = {'bedroomcnt': 'bedrooms', 'bathroomcnt': 'bathrooms',
                              'calculatedfinishedsquarefeet': 'sqft', 'taxvaluedollarcnt':'tax_value',
-                             'yearbuilt':'year_built'}, inplace=True)
+                             'yearbuilt':'year_built', 'taxamount':'tax_amount'}, inplace=True)
         
         # Write that dataframe to disk for later. Called "caching" the data for later.
         df.to_csv(filename, index=False)
