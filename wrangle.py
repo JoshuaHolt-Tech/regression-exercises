@@ -79,3 +79,29 @@ def train_validate(df, stratify_col = None, random_seed=1969):
     #This splits the larger 'train' DataFrame into a smaller 'train' and 'validate' DataFrames:
     train, validate = train_test_split(train, test_size=.2, stratify=stratify_arg, random_state = random_seed)
     return train, validate, test
+
+def scale_zillow(train, val, test, cont_columns = ['sqft', 'taxamount']):
+    """
+    This takes in the train, validate and test DataFrames, scales the cont_columns using the
+    Robust Scaler and returns the DataFrames.
+    """
+    
+    #Make a copy
+    train_rscaled1 = train.copy()
+    val_rscaled1 = val.copy()
+    test_rscaled1 = test.copy()
+    
+    #Fit the scaler
+    rs_scaler = rs_scaler.fit(b_train[cont_columns])
+    
+    #Build the new DataFrames
+    train_rscaled1[cont_columns] = pd.DataFrame(rs_scaler.transform(b_train[cont_columns]),
+                                                  columns=b_train[cont_columns].columns.values).set_index([b_train.index.values])
+
+    val_rscaled1[cont_columns] = pd.DataFrame(rs_scaler.transform(b_val[cont_columns]),
+                                                  columns=b_val[cont_columns].columns.values).set_index([b_val.index.values])
+
+    test_rscaled1[cont_columns] = pd.DataFrame(rs_scaler.transform(b_test[cont_columns]),
+                                                 columns=b_test[cont_columns].columns.values).set_index([b_test.index.values])
+    #Sending them back
+    return train_rscaled1, val_rscaled1, test_rscaled1
