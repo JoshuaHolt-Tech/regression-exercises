@@ -7,6 +7,7 @@ from scipy import stats
 
 from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import RobustScaler
 
 #Removes warnings and imporves asthenics
 import warnings
@@ -92,16 +93,17 @@ def scale_zillow(train, val, test, cont_columns = ['sqft', 'taxamount']):
     test_rscaled1 = test.copy()
     
     #Fit the scaler
-    rs_scaler = rs_scaler.fit(b_train[cont_columns])
+    rs_scaler = RobustScaler()
+    rs_scaler = rs_scaler.fit(train[cont_columns])
     
     #Build the new DataFrames
-    train_rscaled1[cont_columns] = pd.DataFrame(rs_scaler.transform(b_train[cont_columns]),
-                                                  columns=b_train[cont_columns].columns.values).set_index([b_train.index.values])
+    train_rscaled1[cont_columns] = pd.DataFrame(rs_scaler.transform(train[cont_columns]),
+                                                  columns=train[cont_columns].columns.values).set_index([train.index.values])
 
-    val_rscaled1[cont_columns] = pd.DataFrame(rs_scaler.transform(b_val[cont_columns]),
-                                                  columns=b_val[cont_columns].columns.values).set_index([b_val.index.values])
+    val_rscaled1[cont_columns] = pd.DataFrame(rs_scaler.transform(val[cont_columns]),
+                                                  columns=val[cont_columns].columns.values).set_index([val.index.values])
 
-    test_rscaled1[cont_columns] = pd.DataFrame(rs_scaler.transform(b_test[cont_columns]),
-                                                 columns=b_test[cont_columns].columns.values).set_index([b_test.index.values])
+    test_rscaled1[cont_columns] = pd.DataFrame(rs_scaler.transform(test[cont_columns]),
+                                                 columns=test[cont_columns].columns.values).set_index([test.index.values])
     #Sending them back
     return train_rscaled1, val_rscaled1, test_rscaled1
