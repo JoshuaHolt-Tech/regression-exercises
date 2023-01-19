@@ -43,10 +43,12 @@ def lmplot_cont(df, target, cont_columns, sample_size=500):
     """
   
     for col in cont_columns:
-        sns.lmplot(x=col, y=target, data=df.sample(sample_size),
-                   robust=True,
-                   scatter_kws = {'color':'gray'},
-                   line_kws = {'color':'blue'})
+        sns.lmplot(x=col,
+                   y=target, 
+                   data=df.sample(sample_size), 
+                   robust=True, scatter_kws = {'color':'gray'}, 
+                   line_kws = {'color':'blue'}, 
+                   markers = '.')
         plt.hlines(y=df[target].quantile(q=.25), 
                    color='red', alpha=0.6, xmin=min(df[col]),
                   xmax=len(df[col]), label='25%')
