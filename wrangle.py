@@ -8,6 +8,8 @@ from scipy import stats
 from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import RobustScaler
+from sklearn.metrics import mean_squared_error
+
 
 #Removes warnings and imporves asthenics
 import warnings
@@ -50,6 +52,9 @@ def wrangle_zillow():
         df.rename(columns = {'bedroomcnt': 'bedrooms', 'bathroomcnt': 'bathrooms',
                              'calculatedfinishedsquarefeet': 'sqft', 'taxvaluedollarcnt':'tax_value',
                              'yearbuilt':'year_built', 'taxamount':'tax_amount'}, inplace=True)
+        cols_outliers = ['bedrooms', 'bathrooms', 'sqft', 'tax_value', 'tax_amount']
+        for col in cols_outliers:
+            df = df[df[col] <= df[col].quantile(q=0.999)]
         
         # Write that dataframe to disk for later. Called "caching" the data for later.
         df.to_csv(filename, index=False)
@@ -81,7 +86,7 @@ def train_validate(df, stratify_col = None, random_seed=1969):
     train, validate = train_test_split(train, test_size=.2, stratify=stratify_arg, random_state = random_seed)
     return train, validate, test
 
-def scale_zillow(train, val, test, cont_columns = ['sqft', 'taxamount']):
+def scale_zillow(train, val, test, cont_columns = ['sqft', 'tax_amount']):
     """
     This takes in the train, validate and test DataFrames, scales the cont_columns using the
     Robust Scaler and returns the DataFrames.
@@ -107,3 +112,37 @@ def scale_zillow(train, val, test, cont_columns = ['sqft', 'taxamount']):
                                                  columns=test[cont_columns].columns.values).set_index([test.index.values])
     #Sending them back
     return train_rscaled1, val_rscaled1, test_rscaled1
+
+def train_val_test(train, val, test, target_col):
+    """
+    Seperates out the target variable and creates a series with only the target variable to test accuracy.
+    """
+    #Seperating out the target variable
+    X_train = train.drop(columns=[target_col])
+    y_train = train[target_col]
+
+    X_val = val.drop(columns = [target_col])
+    y_val = val[target_col]
+
+    X_test = test.drop(columns = [target_col])
+    y_test = test[target_col]
+    return X_train, y_train, X_val, y_val, X_test, y_test
+
+def find_baseline(y_train):
+    """
+    This function shows a comparison in baselines for mean and median.
+    Output is the RMSE error when using both mean and median.
+    """
+    
+    # Train set
+    bl_df = pd.DataFrame({'actual':y_train, 'mean_bl':y_train.mean(), 'median_bl':y_train.median()})
+    rmse_train_mean = mean_squared_error(bl_df['actual'], bl_df['mean_bl'], squared=False)
+    rmse_train_median = mean_squared_error(bl_df['actual'], bl_df['median_bl'], squared=False)
+
+
+    #Print the findings and difference between each:
+    print(f'RMSE Mean training baseline: {round(rmse_train_mean,0):,.0f}')
+    print("*****************************************")
+    print(f'RMSE Median training baseline: {round(rmse_train_median,0):,.0f}')
+    
+    return min(rmse_train_mean, rmse_train_median)
