@@ -27,7 +27,7 @@ This is how you get rid of the Unnamed: 0 column:
 
 def wrangle_zillow():
     """
-    This function reads the telco_churn data from Codeup db into a df.
+    This function reads the zillow data from Codeup db into a df.
     Changes the names to be more readable.
     Drops null values.
     """
